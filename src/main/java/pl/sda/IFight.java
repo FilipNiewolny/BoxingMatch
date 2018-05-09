@@ -1,5 +1,5 @@
 package pl.sda;
 
 public interface IFight {
-    void fight();
+    void fight() throws InterruptedException;
 }
