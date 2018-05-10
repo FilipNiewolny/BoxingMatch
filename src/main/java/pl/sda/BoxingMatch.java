@@ -24,51 +24,63 @@ public class BoxingMatch implements IFight {
             first = boxer2;
             second = boxer1;
         }
-        IFighter winner ;
+        IFighter winner;
         while (true) {
             AttackType attackActionFighter1 = first.getAttackAction();
             BlockType blockActionFighter2 = second.getBlockAction();
-            HitOutcome hitOutcome = isHitSuccessful(attackActionFighter1, blockActionFighter2);
-            checkDamage(second, hitOutcome);
+            HitOutcome hitOutcome = isHitSuccessful(first, attackActionFighter1, blockActionFighter2);
+            int damage = checkDamage(first, second, hitOutcome);
             System.out.println(first.getName() + " zadaje cios " + attackActionFighter1);
-            System.out.println(second.getName() + " broni się za pomocą " + blockActionFighter2 + " otrzymuje obrażenia równe " + hitOutcome.value +  " ma wciąż " + second.getHp() + " HP");
+            System.out.println(second.getName() + " broni się za pomocą " + blockActionFighter2
+                    + " otrzymuje obrażenia równe " + damage + " ma wciąż " + second.getHp() + " HP");
             if (second.isAlive()) {
                 winner = first;
                 break;
             }
 
-            Thread.sleep(1000);
+            Thread.sleep(100);
 
             AttackType attackTypeFighter2 = second.getAttackAction();
             BlockType blockActionFighter1 = first.getBlockAction();
-            hitOutcome = isHitSuccessful(attackTypeFighter2, blockActionFighter1);
-            checkDamage(first, hitOutcome);
+            hitOutcome = isHitSuccessful(second, attackTypeFighter2, blockActionFighter1);
+            damage = checkDamage(second, first, hitOutcome);
             System.out.println(second.getName() + " zadaje cios " + attackTypeFighter2);
-            System.out.println(first.getName() +  "broni się za pomocą " + blockActionFighter1 + " otrzymuje obrażenia równe " + hitOutcome.value + " ma wciąż " + first.getHp() + " HP");
+            System.out.println(first.getName() + " broni się za pomocą " + blockActionFighter1
+                    + " otrzymuje obrażenia równe " + damage + " ma wciąż " + first.getHp() + " HP");
             if (first.isAlive()) {
                 winner = second;
                 break;
             }
-
+            Thread.sleep(100);
         }
         System.out.println("The winner is " + winner.getName());
-
     }
 
-    private void checkDamage(IFighter second, HitOutcome hitOutcome) {
-
-        second.decreaseHp(hitOutcome.value);
-
+    private int checkDamage(IFighter first, IFighter second, HitOutcome hitOutcome) {
+        int result = 0;
+        if (hitOutcome.value != 0) {
+            if (first.getStamina() > 5) {
+                second.decreaseHp(hitOutcome.value + first.getStrength());
+                result = hitOutcome.value + first.getStrength();
+            } else {
+                second.decreaseHp((hitOutcome.value + first.getStrength() - 1));
+                result = (hitOutcome.value + first.getStrength() - 1);
+            }
+        }
+        return result;
     }
 
-    private HitOutcome isHitSuccessful(AttackType attackActionFighter1, BlockType blockActionFighter2) {
+    private HitOutcome isHitSuccessful(IFighter fighter, AttackType attackActionFighter1, BlockType blockActionFighter2) {
         HitOutcome hitOutcome;
         if (attackActionFighter1.value == blockActionFighter2.value) {
             hitOutcome = HitOutcome.PARTIAL;
+            fighter.decreaseStamina(2);
         } else if (blockActionFighter2.value == 0) {
             hitOutcome = HitOutcome.DODGED;
+            fighter.decreaseStamina(3);
         } else {
             hitOutcome = HitOutcome.FULL;
+            fighter.decreaseStamina(1);
         }
 
 
